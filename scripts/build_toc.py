@@ -8,6 +8,7 @@ Usage: python scripts/build_toc.py <contents-dir> <output-dir>
 
 import html
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -60,7 +61,7 @@ def collect(contents):
     return sections
 
 
-def render(sections):
+def render(sections, config_script):
     parts = []
     for section in sorted(sections, key=lambda s: (s != "", s)):
         heading = section.replace("/", " / ") if section else "General"
@@ -80,6 +81,7 @@ def render(sections):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{SITE_TITLE}</title>
+{config_script}
 <style>
   :root {{ --bg: #fafafa; --fg: #1f2328; --muted: #656d76; --card: #fff; --border: #d0d7de; --accent: #0969da; }}
   @media (prefers-color-scheme: dark) {{
@@ -117,7 +119,17 @@ def render(sections):
 
 def main():
     contents, output = Path(sys.argv[1]), Path(sys.argv[2])
-    (output / "index.html").write_text(render(collect(contents)), encoding="utf-8")
+    index = output / "index.html"
+    # JupyterLite apps read site config from the jupyter-config-data script in
+    # every parent index.html, so the generated root page must keep it.
+    match = re.search(
+        r'<script[^>]*id="jupyter-config-data"[^>]*>.*?</script>',
+        index.read_text(encoding="utf-8"),
+        re.DOTALL,
+    )
+    if not match:
+        sys.exit(f"No jupyter-config-data script in {index}; run jupyter lite build first")
+    index.write_text(render(collect(contents), match.group(0)), encoding="utf-8")
 
 
 if __name__ == "__main__":
