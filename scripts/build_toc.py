@@ -14,7 +14,7 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import quote
 
-SITE_TITLE = "Notebooks"
+SITE_TITLE = "Learning Labs"
 
 
 def filename_title(path):
@@ -109,7 +109,7 @@ def render(sections, config_script):
 <body>
 <main>
   <h1>{SITE_TITLE}</h1>
-  <p class="sub">Each notebook runs in your browser. Prefer the full IDE? <a href="lab/index.html">Open JupyterLab</a>.</p>
+  <p class="sub">I've learned a lot of cools stuff over the years. I'm trying to catlog cool bits of info from different fields in easy to navigate jupyter notebooks. Each notebook runs in your browser. Prefer the full IDE? <a href="lab/index.html">Open JupyterLab</a>.</p>
   {''.join(parts)}
 </main>
 </body>
